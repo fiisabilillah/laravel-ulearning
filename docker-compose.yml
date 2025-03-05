@@ -1,0 +1,62 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_ulearning
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    ports:
+      - "9007:9000"
+    networks:
+      - laravel_ulearning
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_db_ulearning
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: F11sabilillah!
+      MYSQL_DATABASE: db-ulearning
+      MYSQL_USER: posadmin
+      MYSQL_PASSWORD: F11sabilillah!
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel_ulearning
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx_ulearning
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8089:80"
+    networks:
+      - laravel_ulearning
+    depends_on:
+      - app
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_ulearning
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: F11sabilillah!
+    ports:
+      - "8081:80"
+    networks:
+      - laravel_ulearning
+
+volumes:
+  dbdata:
+
+networks:
+  laravel_ulearning:
+    driver: bridge
